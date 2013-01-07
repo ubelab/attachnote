@@ -2,6 +2,7 @@ package com.agomir.attachnote;
 
 import java.io.File;
 
+import com.agomir.attachnote.listeners.ShakeListener;
 import com.agomir.attachnote.utils.FileUtils;
 import com.agomir.attachnote.view.FingerPaintDrawableView;
 
@@ -9,9 +10,12 @@ import com.agomir.attachnote.view.FingerPaintDrawableView;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.ViewGroup.LayoutParams;
@@ -20,6 +24,10 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
+	private SensorManager mSensorManager;
+	private Sensor mAccelerometer;
+	private ShakeListener shakeListener;
+	
 	FingerPaintDrawableView fingerPaintView;
 	
 	@Override
@@ -27,7 +35,24 @@ public class MainActivity extends Activity {
 		if(fingerPaintView != null) {
 			fingerPaintView.destroy();//recycle bitmaps
 		}
+		if(mSensorManager!= null && shakeListener != null) {
+			mSensorManager.unregisterListener(shakeListener);
+		}
 		super.onDestroy();
+	}
+	
+	protected void onResume() {
+		super.onResume();
+		if(mSensorManager!= null && shakeListener != null) {
+			mSensorManager.registerListener(shakeListener, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+		}
+	}
+
+	protected void onPause() {
+		super.onPause();
+		if(mSensorManager!= null && shakeListener != null) {
+			mSensorManager.unregisterListener(shakeListener);
+		}
 	}
 	
     @Override
@@ -69,6 +94,18 @@ public class MainActivity extends Activity {
 			}
     	}
     	
+    	//Registro il listener
+    	shakeListener = new ShakeListener() {
+    	      @Override
+    	      public void onShake()
+    	      {
+    	        	Log.d("#### SHAKE SHAKE SHAKE","#### SHAKE SHAKE SHAKE");
+    	        	fingerPaintView.clearDashboard();
+    	      }
+	    };
+	    mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+	    mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+	    mSensorManager.registerListener(shakeListener, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override

@@ -101,6 +101,10 @@ public class FingerPaintDrawableView extends View implements OnTouchListener{
 		mCanvas = new Canvas(mBitmap);
     }
     
+    public void clearDashboard() {
+    	mCanvas.drawColor(Color.WHITE);
+    	invalidate();
+    }
     
     @Override
     protected void onDraw(Canvas canvas) {
