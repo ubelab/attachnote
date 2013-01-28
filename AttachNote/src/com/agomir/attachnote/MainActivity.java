@@ -3,6 +3,7 @@ package com.agomir.attachnote;
 import java.io.File;
 import java.util.ArrayList;
 
+import com.agomir.attachnote.helper.VoiceRecognitionHelper;
 import com.agomir.attachnote.listeners.ShakeListener;
 import com.agomir.attachnote.utils.FileUtils;
 import com.agomir.attachnote.view.FingerPaintDrawableView;
@@ -24,10 +25,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 public class MainActivity extends Activity {
 
@@ -86,13 +85,8 @@ public class MainActivity extends Activity {
                     RecognizerIntent.EXTRA_RESULTS);
             
             for(String s: matches) {
-            	if(s.toLowerCase().contains("verde")) {
-            		fingerPaintView.setColor(Color.GREEN);
-            	}else if(s.toLowerCase().contains("rosso")) {
-            		fingerPaintView.setColor(Color.RED);
-            	}else if(s.toLowerCase().contains("blu")) {
-            		fingerPaintView.setColor(Color.BLUE);
-            	}
+            	VoiceRecognitionHelper.analyzeVoice(s, fingerPaintView);
+            	break;
             }
         }
 

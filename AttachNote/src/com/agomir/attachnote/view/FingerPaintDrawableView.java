@@ -125,7 +125,7 @@ public class FingerPaintDrawableView extends View implements OnTouchListener{
     int paintSize = 1;
     private void touch_start(float x, float y) {
     	paintSize = 5;
-    	mPaint.setStrokeWidth(paintSize);
+    	//mPaint.setStrokeWidth(paintSize);
         mPath.reset();
         mPath.moveTo(x, y);
         mX = x;
@@ -199,6 +199,15 @@ public class FingerPaintDrawableView extends View implements OnTouchListener{
   
 	public void setColor(int color) {
 		mPaint.setColor(color);
+	}
+	
+	public void setBrushSize(int size) {
+		mPaint.setStrokeWidth(size);
+	}
+	
+	public int getBrushSize() {
+		System.out.println("### "+mPaint.getStrokeWidth());
+		return (int)mPaint.getStrokeWidth();
 	}
 
 }
