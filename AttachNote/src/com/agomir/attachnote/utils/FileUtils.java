@@ -25,13 +25,13 @@ import android.util.Log;
  */
 public class FileUtils {
 	
-	private final static String ROOT_APP_DIRECTORY = "DOCDOODLE";
+	private final static String ROOT_APP_DIRECTORY = "ATTACHNOTE";
 	private final static String TMP_IMAGE_DIR = "tmp";
 	private final static String SAVE_IMAGE_DIR = "saved";
 	public final static String IMAGE_EXTENSION_JPEG = ".jpeg";
 	public final static String IMAGE_EXTENSION_PNG = ".png";
 	public final static String PREFIX = "DOCDOODLE";
-	public final static String PREFIX_SHARE = "DOCDOODLESHARE";
+	public final static String PREFIX_SHARE = "ATTACHNOTE";
 	
 	public static File createTmpImageFile() throws IOException {
 		return createTmpImageFile(false);
@@ -64,7 +64,7 @@ public class FileUtils {
 		if(Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)) {
 			// Create an image file name
 			 Log.d("### key"," key="+key);
-	        String imageFileName = PREFIX + key + IMAGE_EXTENSION_PNG;
+	        String imageFileName = key + IMAGE_EXTENSION_PNG;
 	        Log.d("### imageFileName"," imageFileName="+imageFileName);
 	        File image = new File(getSaveDir(),imageFileName);
 	        if(image!= null && !image.exists()) {
@@ -152,7 +152,7 @@ public class FileUtils {
         File file = new File(Environment.getExternalStorageDirectory(), path);
         if (!file.exists()) {
             if (!file.mkdirs()) {
-                Log.e("ColorEverything :: ", "Problem creating folder");
+                Log.e("ATTACH NOTE", "Problem creating folder");
                 ret = false;
             }
         }

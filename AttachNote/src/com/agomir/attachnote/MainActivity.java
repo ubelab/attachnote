@@ -1,11 +1,14 @@
 package com.agomir.attachnote;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.agomir.attachnote.helper.VoiceRecognitionHelper;
 import com.agomir.attachnote.listeners.ShakeListener;
 import com.agomir.attachnote.utils.FileUtils;
+import com.agomir.attachnote.utils.HashingUtils;
 import com.agomir.attachnote.view.FingerPaintDrawableView;
 
 import android.net.Uri;
@@ -15,22 +18,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.MenuItem;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
 	private static final int VOICE_RECOGNITION_REQUEST_CODE = 738392362;
+	
+	private String filePath;
 	
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
@@ -73,6 +75,53 @@ public class MainActivity extends Activity {
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Voice recognition");
         startActivityForResult(intent, VOICE_RECOGNITION_REQUEST_CODE);
     }
+    
+    //Salva la nota su file system, associandola al file in questione
+    private void saveNote() {
+    	Bitmap bitmap = fingerPaintView.getBitmap();
+		try {
+			//1) CREO UNA CHIAVE UNIVOCA PER QUESTA NOTA
+			//Uso una convenzione prestabilita: [MD5(filepath completo)]_[timestamp].png
+			String pathMD5 = HashingUtils.md5(filePath);
+			String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+			String nomeFile = pathMD5+"_"+timeStamp;
+			//2) SALVO L'IMMAGINE
+			File file = FileUtils.createImageFileForSave(nomeFile);
+			boolean saved = FileUtils.saveBitmapPNG(file.getAbsolutePath(), bitmap);
+			Log.d("### salvato in",""+file.getAbsolutePath());
+			
+			if(saved) {
+					runOnUiThread(new Runnable() {
+						public void run() {
+							Toast.makeText(getApplicationContext(), "Note saved to disk", Toast.LENGTH_SHORT).show();
+						}
+					});
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
+    
+    //Condivide la nota con applicazioni esterne
+    private void shareNote() {
+    	//Salvo la bitmap nel canvas sul file system e passo il path all'activity successiva
+		Bitmap bitmap = fingerPaintView.getBitmap();
+		try {
+			File file = FileUtils.createTmpImageFile(true);
+			boolean saved = FileUtils.saveBitmapPNG(file.getAbsolutePath(), bitmap);
+			if(saved) {
+				Uri screenshotUri = Uri.fromFile(file);
+				Log.d("SCREENSHOT URI","SCREENSHOT URI="+screenshotUri);
+	        	final Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+	        	emailIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	        	emailIntent.putExtra(Intent.EXTRA_STREAM, screenshotUri);
+	        	emailIntent.setType("image/png");
+	        	startActivity(Intent.createChooser(emailIntent, getApplicationContext().getString(R.string.menu_share)));
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
 
     /**
      * Handle the results from the recognition activity.
@@ -104,21 +153,11 @@ public class MainActivity extends Activity {
 		
         RelativeLayout root = (RelativeLayout)findViewById(R.id.root_layout);
         root.addView(fingerPaintView,0,fingerRelativeParams);
-        
-        //Bottone per il riconoscimento vocale
-        Button btnVoice = (Button)findViewById(R.id.voiceRecognition);
-        btnVoice.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				startVoiceRecognitionActivity();
-			}
-		});
-        
+     
         //Se in input abbiamo un file mandato con SEND
     	if(getIntent().getAction().equalsIgnoreCase(Intent.ACTION_SEND)) {
 	    	Bundle b = getIntent().getExtras();
-	    	String filePath = b.get(Intent.EXTRA_STREAM).toString();
+	    	filePath = b.get(Intent.EXTRA_STREAM).toString();
 	    	Log.d("FilePath = ",filePath);
 	    	if(filePath != null) {
 	    		
@@ -159,5 +198,17 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	if(item.getItemId() == R.id.menu_voice_recognition) {
+    		startVoiceRecognitionActivity();
+    	}else if(item.getItemId() == R.id.menu_share) {
+    		shareNote();
+    	}else if(item.getItemId() == R.id.menu_save) {
+    		saveNote();
+    	}
+    	return true;
     }
 }

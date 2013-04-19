@@ -66,6 +66,7 @@ public class FingerPaintDrawableView extends View implements OnTouchListener{
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(5);
+        mPaint.setColor(Color.RED);
         //Questo mi serve per la gomma ad esempio, che se pitturi la trasparenza, cancella quello che c'è sotto.
         mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC));
         
@@ -208,6 +209,10 @@ public class FingerPaintDrawableView extends View implements OnTouchListener{
 	public int getBrushSize() {
 		System.out.println("### "+mPaint.getStrokeWidth());
 		return (int)mPaint.getStrokeWidth();
+	}
+
+	public Bitmap getBitmap() {
+		return mBitmap;
 	}
 
 }
