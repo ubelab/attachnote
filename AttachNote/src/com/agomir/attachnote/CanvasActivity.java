@@ -23,6 +23,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.speech.RecognizerIntent;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup.LayoutParams;
@@ -189,9 +190,7 @@ public class CanvasActivity extends Activity {
 	    		File inFile = new File(filePath);
 	    		if(inFile.exists() && (inFile.getName().toLowerCase().endsWith(".jpg") || inFile.getName().toLowerCase().endsWith(".jpeg") ||
 	    				inFile.getName().toLowerCase().endsWith(".png"))) {
-	    			Options opts = new Options();
-	    			opts.inSampleSize = 4;
-	    			Bitmap bg = BitmapFactory.decodeFile(filePath,opts);
+	    			Bitmap bg = getSampledBitmap(filePath);
 		    		fingerPaintView.setBackgroundImage(bg);
 	    		}
 	    	}
@@ -228,4 +227,45 @@ public class CanvasActivity extends Activity {
     	}
     	return true;
     }
+    
+    private Bitmap getSampledBitmap(String imagePath) {
+		// Get the dimensions of the bitmap
+	    BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+	    bmOptions.inJustDecodeBounds = true;
+	    BitmapFactory.decodeFile(imagePath, bmOptions);
+	    int photoW = bmOptions.outWidth;
+	    int photoH = bmOptions.outHeight;
+	    
+	    double proportion = (double)photoW/(double)photoH;
+	
+	    Display display = getWindowManager().getDefaultDisplay();
+		int screenW = display.getWidth();
+		int screenH = display.getHeight();
+		
+		Log.d("CANVAS SIZE","## CANVAS W="+screenW+" CANVASH = "+screenH);
+		
+		int finalH = screenH;
+		int finalW = (int)(finalH * proportion);
+		
+		if(finalW > screenW) {
+			finalW = screenW;
+			finalH = (int)(finalW / proportion);
+		}
+		
+	    // Determine how much to scale down the image
+		//ORIGINALE ERA Math.min()-> targetW,targetH
+	    int scaleFactor = Math.min((int)((double)photoW/(double)finalW), (int)((double)photoH/(double)finalH));
+	    //if(scaleFactor == 3) scaleFactor = 4;
+	    Log.d("scale factor","scale factor = "+scaleFactor);
+	  
+	    // Decode the image file into a Bitmap sized to fill the View
+	    bmOptions.inJustDecodeBounds = false;
+	    bmOptions.inSampleSize = scaleFactor;
+	    bmOptions.inPurgeable = false;
+
+	    Bitmap capturedImage = BitmapFactory.decodeFile(imagePath, bmOptions);
+	    Log.d("captured scale factor","captured orig scale factor w="+capturedImage.getWidth()+" h="+capturedImage.getHeight());
+	    Log.d("captured scale factor","image original scale factor w="+photoW+" h="+photoH);
+	    return capturedImage;
+	}
 }
