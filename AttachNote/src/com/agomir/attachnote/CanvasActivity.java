@@ -18,6 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.speech.RecognizerIntent;
@@ -28,7 +29,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class CanvasActivity extends Activity {
 
 	private static final int VOICE_RECOGNITION_REQUEST_CODE = 738392362;
 	
@@ -78,7 +79,7 @@ public class MainActivity extends Activity {
     
     //Salva la nota su file system, associandola al file in questione
     private void saveNote() {
-    	Bitmap bitmap = fingerPaintView.getBitmap();
+    	Bitmap bitmap = fingerPaintView.getBitmapWithBackground();
 		try {
 			//1) CREO UNA CHIAVE UNIVOCA PER QUESTA NOTA
 			//Uso una convenzione prestabilita: [MD5(filepath completo)]_[timestamp].png
@@ -99,13 +100,18 @@ public class MainActivity extends Activity {
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
+		}finally {
+			if(bitmap != null && ! bitmap.isRecycled()) {
+				bitmap.recycle();
+				bitmap = null;
+			}
 		}
     }
     
     //Condivide la nota con applicazioni esterne
     private void shareNote() {
     	//Salvo la bitmap nel canvas sul file system e passo il path all'activity successiva
-		Bitmap bitmap = fingerPaintView.getBitmap();
+		Bitmap bitmap = fingerPaintView.getBitmapWithBackground();
 		try {
 			File file = FileUtils.createTmpImageFile(true);
 			boolean saved = FileUtils.saveBitmapPNG(file.getAbsolutePath(), bitmap);
@@ -120,6 +126,11 @@ public class MainActivity extends Activity {
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
+		}finally {
+			if(bitmap != null && ! bitmap.isRecycled()) {
+				bitmap.recycle();
+				bitmap = null;
+			}
 		}
     }
 
@@ -154,11 +165,11 @@ public class MainActivity extends Activity {
         RelativeLayout root = (RelativeLayout)findViewById(R.id.root_layout);
         root.addView(fingerPaintView,0,fingerRelativeParams);
      
-        //Se in input abbiamo un file mandato con SEND
-    	if(getIntent().getAction().equalsIgnoreCase(Intent.ACTION_SEND)) {
-	    	Bundle b = getIntent().getExtras();
-	    	filePath = b.get(Intent.EXTRA_STREAM).toString();
-	    	Log.d("FilePath = ",filePath);
+        //Prelevo il filePath passato
+        Bundle extras = getIntent().getExtras();
+        if(extras !=null){
+	    	filePath = extras.getString("filePath");
+	    	Log.d("FilePath bundles = ",filePath);
 	    	if(filePath != null) {
 	    		
 	    		if(filePath.contains("content://")) {
@@ -168,16 +179,22 @@ public class MainActivity extends Activity {
 	    			filePath = Uri.decode(filePath).replace("file://","");
 	    		}
 	    		
-	    		if(!new File(filePath).exists()) {
-					Toast.makeText(getApplicationContext(), "Impossible to find image.", Toast.LENGTH_SHORT).show();
-					return;
-				}
-	    		
-	    	    BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-	    	    bmOptions.inJustDecodeBounds = false;
-	    	    Bitmap bitmap = BitmapFactory.decodeFile(filePath, bmOptions);
-	    	    fingerPaintView.setBackgroundImage(bitmap);
 			}
+	    	String noteImagePath = extras.getString("noteImagePath");
+	    	if(noteImagePath != null) {
+	    		Bitmap notaImage = BitmapFactory.decodeFile(noteImagePath);
+	    		fingerPaintView.setBackgroundImage(notaImage);
+	    	}else {
+	    		//Siamo in una nuova nota, se il file è immagine lo imposto come background
+	    		File inFile = new File(filePath);
+	    		if(inFile.exists() && (inFile.getName().toLowerCase().endsWith(".jpg") || inFile.getName().toLowerCase().endsWith(".jpeg") ||
+	    				inFile.getName().toLowerCase().endsWith(".png"))) {
+	    			Options opts = new Options();
+	    			opts.inSampleSize = 4;
+	    			Bitmap bg = BitmapFactory.decodeFile(filePath,opts);
+		    		fingerPaintView.setBackgroundImage(bg);
+	    		}
+	    	}
     	}
     	
     	//Registro il listener

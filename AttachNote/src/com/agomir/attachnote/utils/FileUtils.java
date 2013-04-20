@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import android.app.Activity;
@@ -246,5 +247,17 @@ public class FileUtils {
 		}else {
 			throw new IOException("MEDIA UNMOUNTED");
 		}
+	}
+
+	public static ArrayList<File> getDocNotes(String filePath) {
+		ArrayList<File> result = new ArrayList<File>();
+		String MD5 = HashingUtils.md5(filePath);
+		File savedNoteDir = getSaveDir();
+		for(File file: savedNoteDir.listFiles()) {
+			if(file.getName().startsWith(MD5)) {
+				result.add(file);
+			}
+		}
+		return result;
 	}
 }

@@ -2,6 +2,7 @@ package com.agomir.attachnote.view;
 
 import android.content.Context;
 import android.graphics.*;
+import android.util.Config;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -121,6 +122,7 @@ public class FingerPaintDrawableView extends View implements OnTouchListener{
     	this.background = bitmap;
     }
     
+   
     private float mX, mY;
     private static final float TOUCH_TOLERANCE = 2;
     int paintSize = 1;
@@ -213,6 +215,14 @@ public class FingerPaintDrawableView extends View implements OnTouchListener{
 
 	public Bitmap getBitmap() {
 		return mBitmap;
+	}
+	
+	public Bitmap getBitmapWithBackground() {
+		Bitmap fullBitmap = Bitmap.createBitmap(mBitmap.getWidth(), mBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+		Canvas fullCanvas = new Canvas(fullBitmap);
+		fullCanvas.drawBitmap(background, null, destRect, mBitmapPaint);
+		fullCanvas.drawBitmap(mBitmap, null, destRect, mBitmapPaint);
+		return fullBitmap;
 	}
 
 }

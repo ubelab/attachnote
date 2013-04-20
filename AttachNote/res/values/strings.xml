@@ -1,5 +1,4 @@
 <resources>
-
     <string name="app_name">Attach Note</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
@@ -7,4 +6,5 @@
     <string name="voicerecognition">Voice recognition</string>
 	<string name="menu_share">Share note</string>
 	<string name="menu_save">Save note</string>
+	<string name="add_note">Add new note</string>
 </resources>

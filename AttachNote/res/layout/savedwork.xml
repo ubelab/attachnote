@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/filters_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- LIST VIEW DOVE METTIAMO TUTTE LE NOTE ASSOCIATE AL DOCUMENTO -->
+    <ListView
+		android:id="@+id/artwork_list"
+		android:layout_width="match_parent" 
+	    android:layout_height="match_parent"
+	    android:background="#00000000"
+		android:cacheColorHint="#00000000"
+		android:listSelector="@drawable/listitem_selector"
+		android:scrollbars="none"
+	/>
+    
+</RelativeLayout> 
