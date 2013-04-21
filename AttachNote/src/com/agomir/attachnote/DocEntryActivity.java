@@ -26,6 +26,7 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class DocEntryActivity extends Activity {
@@ -33,6 +34,7 @@ public class DocEntryActivity extends Activity {
 	float DENSITY = 1.0f;
 	ArtworkAdapter myAdapter;
 	private String filePath;
+	View footerView;
 
 	@Override
 	protected void onResume() {
@@ -41,6 +43,18 @@ public class DocEntryActivity extends Activity {
         final ListView lv = (ListView)findViewById(R.id.artwork_list);
         lv.setAdapter(myAdapter);
         lv.setTextFilterEnabled(true);
+        if(notes != null && notes.size() > 0 && !("NO_FILE".equalsIgnoreCase(filePath))) {
+        	((TextView)(footerView.findViewById(R.id.footertext))).setText("File: "+filePath);
+        }
+        else if(notes != null && notes.size() > 0 && "NO_FILE".equalsIgnoreCase(filePath)) {
+        	((TextView)(footerView.findViewById(R.id.footertext))).setText("Free notes");
+        }
+        else if((notes == null || notes.size() == 0) && "NO_FILE".equalsIgnoreCase(filePath)) {
+        	((TextView)(footerView.findViewById(R.id.footertext))).setText("There are no free notes");
+        }
+        else{
+        	((TextView)(footerView.findViewById(R.id.footertext))).setText("There are no note for file: "+filePath);
+        }
 		super.onResume();
 	}
 	
@@ -52,6 +66,9 @@ public class DocEntryActivity extends Activity {
         this.DENSITY = getApplicationContext().getResources().getDisplayMetrics().density;
   
         final ListView lv = (ListView)findViewById(R.id.artwork_list);
+        //Metto un footer alla lista dove mettere eventuali messaggi
+        footerView = ((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.list_footer, null, false);
+		lv.addFooterView(footerView);
 
         //Se in input abbiamo un file mandato con SEND prendo il suo path
     	if(getIntent().getAction().equalsIgnoreCase(Intent.ACTION_SEND)) {
@@ -74,12 +91,6 @@ public class DocEntryActivity extends Activity {
     	}else {
     		filePath = "NO_FILE";//NOTE LIBERE
     	}
-        /*
-        ArrayList<File> notes = FileUtils.getDocNotes(filePath);
-        myAdapter = new ArtworkAdapter(this, R.layout.list_item, notes);
-        lv.setAdapter(myAdapter);
-        lv.setTextFilterEnabled(true);
-         */
     }
     
     private class ArtworkAdapter extends ArrayAdapter<File> {

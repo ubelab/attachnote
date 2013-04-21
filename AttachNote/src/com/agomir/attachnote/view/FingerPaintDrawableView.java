@@ -220,8 +220,10 @@ public class FingerPaintDrawableView extends View implements OnTouchListener{
 	public Bitmap getBitmapWithBackground() {
 		Bitmap fullBitmap = Bitmap.createBitmap(mBitmap.getWidth(), mBitmap.getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas fullCanvas = new Canvas(fullBitmap);
-		fullCanvas.drawBitmap(background, null, destRect, mBitmapPaint);
-		fullCanvas.drawBitmap(mBitmap, null, destRect, mBitmapPaint);
+		if(background != null && !background.isRecycled())
+			fullCanvas.drawBitmap(background, null, destRect, mBitmapPaint);
+		if(mBitmap != null && !mBitmap.isRecycled())
+			fullCanvas.drawBitmap(mBitmap, null, destRect, mBitmapPaint);
 		return fullBitmap;
 	}
 

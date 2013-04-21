@@ -260,4 +260,12 @@ public class FileUtils {
 		}
 		return result;
 	}
+
+	public static boolean deleteNote(String noteImagePath) {
+		File file = new File(noteImagePath);
+		if(file.exists()) {
+			return file.delete();
+		}
+		return false;
+	}
 }

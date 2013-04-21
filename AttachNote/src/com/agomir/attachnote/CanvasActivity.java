@@ -35,6 +35,7 @@ public class CanvasActivity extends Activity {
 	private static final int VOICE_RECOGNITION_REQUEST_CODE = 738392362;
 	
 	private String filePath;
+	private String noteImagePath;//se stiamo creando una nuova nota è nullo
 	
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
@@ -109,6 +110,20 @@ public class CanvasActivity extends Activity {
 		}
     }
     
+    //Elimina la nota dal filesystem
+    private void deleteNote() {
+    	if(noteImagePath == null) {
+    		Toast.makeText(getApplicationContext(), "This note has not yet been saved", Toast.LENGTH_LONG).show();
+    	}else {
+    		boolean deleted = FileUtils.deleteNote(noteImagePath);
+    		if(!deleted) {
+    			Toast.makeText(getApplicationContext(), "Impossible to delete note", Toast.LENGTH_LONG).show();
+    		}else {
+    			finish();//torno alla activity precedente
+    		}
+    	}
+    }
+    
     //Condivide la nota con applicazioni esterne
     private void shareNote() {
     	//Salvo la bitmap nel canvas sul file system e passo il path all'activity successiva
@@ -181,7 +196,7 @@ public class CanvasActivity extends Activity {
 	    		}
 	    		
 			}
-	    	String noteImagePath = extras.getString("noteImagePath");
+	    	noteImagePath = extras.getString("noteImagePath");
 	    	if(noteImagePath != null) {
 	    		Bitmap notaImage = BitmapFactory.decodeFile(noteImagePath);
 	    		fingerPaintView.setBackgroundImage(notaImage);
@@ -213,7 +228,16 @@ public class CanvasActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
+    }
+    
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+    	//Se è una nuova nota non mostro l'opzione di elimina
+    	if(noteImagePath == null) {
+    		menu.findItem(R.id.menu_delete).setVisible(false);
+    	}
+    	return super.onPrepareOptionsMenu(menu);
     }
     
     @Override
@@ -224,6 +248,8 @@ public class CanvasActivity extends Activity {
     		shareNote();
     	}else if(item.getItemId() == R.id.menu_save) {
     		saveNote();
+    	}else if(item.getItemId() == R.id.menu_delete) {
+    		deleteNote();
     	}
     	return true;
     }
