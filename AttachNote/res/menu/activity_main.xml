@@ -4,6 +4,14 @@
         android:title="@string/voicerecognition"
         android:orderInCategory="100"
         android:showAsAction="never" />
+    <item android:id="@+id/menu_colors"
+        android:title="@string/menu_colors"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+     <item android:id="@+id/menu_size"
+        android:title="@string/menu_size"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
     <item android:id="@+id/menu_share"
         android:title="@string/menu_share"
         android:orderInCategory="100"

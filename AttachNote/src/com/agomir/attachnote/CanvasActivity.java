@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.agomir.attachnote.dialogs.BrushSizeDialog;
+import com.agomir.attachnote.dialogs.ChooseColorDialog;
 import com.agomir.attachnote.helper.VoiceRecognitionHelper;
 import com.agomir.attachnote.listeners.ShakeListener;
 import com.agomir.attachnote.utils.FileUtils;
@@ -23,6 +25,7 @@ import android.graphics.BitmapFactory.Options;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.speech.RecognizerIntent;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -31,7 +34,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-public class CanvasActivity extends Activity {
+public class CanvasActivity extends FragmentActivity {
 
 	private static final int VOICE_RECOGNITION_REQUEST_CODE = 738392362;
 	
@@ -263,12 +266,25 @@ public class CanvasActivity extends Activity {
 	        case R.id.menu_delete:
 	        	deleteNote();
 	            return true;
+	        case R.id.menu_colors:
+	        	openColorDialog();
+	            return true;
+	        case R.id.menu_size:
+	        	openBrushSizeDialog();
+	            return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
     }
     
-    private Bitmap getSampledBitmap(String imagePath) {
+    private void openColorDialog() {
+		new ChooseColorDialog().show(getSupportFragmentManager(), "Colors");
+	}
+    private void openBrushSizeDialog() {
+		new BrushSizeDialog().show(getSupportFragmentManager(), "Brush size");
+	}
+
+	private Bitmap getSampledBitmap(String imagePath) {
 		// Get the dimensions of the bitmap
 	    BitmapFactory.Options bmOptions = new BitmapFactory.Options();
 	    bmOptions.inJustDecodeBounds = true;

@@ -7,5 +7,7 @@
 	<string name="menu_share">Share note</string>
 	<string name="menu_save">Save note</string>
 	<string name="menu_delete">Delete note</string>
+	<string name="menu_colors">Colors</string>
+	<string name="menu_size">Brush size</string>
 	<string name="add_note">Add new note</string>
 </resources>
