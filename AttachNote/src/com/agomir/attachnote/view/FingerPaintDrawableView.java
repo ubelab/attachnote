@@ -108,10 +108,29 @@ public class FingerPaintDrawableView extends View implements OnTouchListener{
     	invalidate();
     }
     
+    Rect bgRect;
+    int bgW,bgH;
+    int finalW,finalH;
+    double bgProportion;
     @Override
     protected void onDraw(Canvas canvas) {
-    	if(destRect != null && background != null && !background.isRecycled()) {
-	    	canvas.drawBitmap(background, null, destRect, mBitmapPaint);
+    	//Il background lo disegno centrato
+    	if(background != null && !background.isRecycled()) {
+    		bgW=background.getWidth();
+    		bgH=background.getHeight();
+    		bgProportion = (double)bgW/(double)bgH;
+    		
+    		//primo tentativo
+    		finalW = mBitmap.getWidth();
+    		finalH = (int)(finalW / bgProportion);
+    		
+    		if(finalH > mBitmap.getHeight()) {
+    			finalH = mBitmap.getHeight();
+    			finalW = (int)(finalH * bgProportion);
+    		}
+    		
+    		bgRect = new Rect((mBitmap.getWidth()/2 - finalW/2), (mBitmap.getHeight()/2 - finalH/2), (mBitmap.getWidth()/2 + finalW/2),(mBitmap.getHeight()/2 + finalH/2));
+	    	canvas.drawBitmap(background, null, bgRect, mBitmapPaint);
     	}
     	if(destRect != null && mBitmap != null && !mBitmap.isRecycled()) {
 	    	canvas.drawBitmap(mBitmap, null, destRect, mBitmapPaint);
@@ -221,7 +240,7 @@ public class FingerPaintDrawableView extends View implements OnTouchListener{
 		Bitmap fullBitmap = Bitmap.createBitmap(mBitmap.getWidth(), mBitmap.getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas fullCanvas = new Canvas(fullBitmap);
 		if(background != null && !background.isRecycled())
-			fullCanvas.drawBitmap(background, null, destRect, mBitmapPaint);
+			fullCanvas.drawBitmap(background, null, bgRect, mBitmapPaint);
 		if(mBitmap != null && !mBitmap.isRecycled())
 			fullCanvas.drawBitmap(mBitmap, null, destRect, mBitmapPaint);
 		return fullBitmap;
