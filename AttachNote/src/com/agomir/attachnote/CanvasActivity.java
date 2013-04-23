@@ -13,6 +13,7 @@ import com.agomir.attachnote.view.FingerPaintDrawableView;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -174,6 +175,10 @@ public class CanvasActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
+        
         fingerPaintView = new FingerPaintDrawableView(getApplicationContext());
         RelativeLayout.LayoutParams fingerRelativeParams = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		fingerRelativeParams.addRule(RelativeLayout.CENTER_IN_PARENT);
@@ -242,16 +247,25 @@ public class CanvasActivity extends Activity {
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	if(item.getItemId() == R.id.menu_voice_recognition) {
-    		startVoiceRecognitionActivity();
-    	}else if(item.getItemId() == R.id.menu_share) {
-    		shareNote();
-    	}else if(item.getItemId() == R.id.menu_save) {
-    		saveNote();
-    	}else if(item.getItemId() == R.id.menu_delete) {
-    		deleteNote();
-    	}
-    	return true;
+    	switch (item.getItemId()) {
+	    	case android.R.id.home:
+	            finish();
+	            return true;
+	        case R.id.menu_voice_recognition:
+	        	startVoiceRecognitionActivity();
+	            return true;
+	        case R.id.menu_share:
+	        	shareNote();
+	            return true;
+	        case R.id.menu_save:
+	        	saveNote();
+	            return true;
+	        case R.id.menu_delete:
+	        	deleteNote();
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
     }
     
     private Bitmap getSampledBitmap(String imagePath) {

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.agomir.attachnote.utils.FileUtils;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -173,11 +174,14 @@ public class DocEntryActivity extends Activity {
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	if(item.getItemId() == R.id.menu_addnote) {
-    		Intent myIntent = new Intent(DocEntryActivity.this, CanvasActivity.class);
-			myIntent.putExtra("filePath", filePath);
-			DocEntryActivity.this.startActivity(myIntent);
-    	}
-    	return true;
+    	switch (item.getItemId()) {
+	        case R.id.menu_addnote:
+	        	Intent myIntent = new Intent(DocEntryActivity.this, CanvasActivity.class);
+				myIntent.putExtra("filePath", filePath);
+				DocEntryActivity.this.startActivity(myIntent);
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
     }
 }
