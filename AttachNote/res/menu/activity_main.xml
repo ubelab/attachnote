@@ -8,6 +8,10 @@
         android:title="@string/menu_colors"
         android:orderInCategory="100"
         android:showAsAction="never" />
+    <item android:id="@+id/menu_eraser"
+        android:title="@string/menu_eraser"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
      <item android:id="@+id/menu_size"
         android:title="@string/menu_size"
         android:orderInCategory="100"

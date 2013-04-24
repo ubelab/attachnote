@@ -9,5 +9,6 @@
 	<string name="menu_delete">Delete note</string>
 	<string name="menu_colors">Colors</string>
 	<string name="menu_size">Brush size</string>
+	<string name="menu_eraser">Eraser</string>
 	<string name="add_note">Add new note</string>
 </resources>

@@ -2,6 +2,7 @@ package com.agomir.attachnote.view;
 
 import android.content.Context;
 import android.graphics.*;
+import android.graphics.Paint.Style;
 import android.util.Config;
 import android.view.MotionEvent;
 import android.view.View;
@@ -104,7 +105,12 @@ public class FingerPaintDrawableView extends View implements OnTouchListener{
     }
     
     public void clearDashboard() {
-    	mCanvas.drawColor(Color.WHITE);
+    	int preColor = mPaint.getColor();//salvo il colore corrente
+    	mPaint.setColor(Color.TRANSPARENT);
+    	mPaint.setStyle(Paint.Style.FILL);//riempimento
+    	mCanvas.drawRect(0, 0, mBitmap.getWidth(), mBitmap.getHeight(), mPaint);
+    	mPaint.setColor(preColor);//ripristino il colore corrente
+    	mPaint.setStyle(Paint.Style.STROKE);//ripristino lo style
     	invalidate();
     }
     
@@ -205,15 +211,15 @@ public class FingerPaintDrawableView extends View implements OnTouchListener{
 	         case MotionEvent.ACTION_DOWN:
 	             touch_start(x, y);
 	             //Invalido solo l'intorno di dove ho disegnato, per velocizzare il refresh anche su schermi grandi
-	             invalidate((int)(left-PAINT_SIZE),(int)(top-PAINT_SIZE),(int)(right+PAINT_SIZE),(int)(bottom+PAINT_SIZE));
+	             invalidate((int)(left-PAINT_SIZE*2),(int)(top-PAINT_SIZE*2),(int)(right+PAINT_SIZE*2),(int)(bottom+PAINT_SIZE*2));
 	             break;
 	         case MotionEvent.ACTION_MOVE:
 	        	 touch_move(x, y);
-	        	 invalidate((int)(left-PAINT_SIZE),(int)(top-PAINT_SIZE),(int)(right+PAINT_SIZE),(int)(bottom+PAINT_SIZE));
+	        	 invalidate((int)(left-PAINT_SIZE*2),(int)(top-PAINT_SIZE*2),(int)(right+PAINT_SIZE*2),(int)(bottom+PAINT_SIZE*2));
 	             break;
 	         case MotionEvent.ACTION_UP://N.B. se sono con 2 dita, questo non viene lanciato al primo dito rilasciato,ma al secondo
 	             touch_up();
-	             invalidate((int)(left-PAINT_SIZE),(int)(top-PAINT_SIZE),(int)(right+PAINT_SIZE),(int)(bottom+PAINT_SIZE));
+	             invalidate((int)(left-PAINT_SIZE*2),(int)(top-PAINT_SIZE*2),(int)(right+PAINT_SIZE*2),(int)(bottom+PAINT_SIZE*2));
 	             break;
 	     }
 	     return true;

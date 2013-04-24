@@ -71,14 +71,6 @@ public class FileUtils {
 	        if(image!= null && !image.exists()) {
 	        	image.createNewFile();
 	        }
-	        /*
-	        File image = File.createTempFile(
-	            imageFileName, 
-	            IMAGE_EXTENSION_PNG, 
-	            getSaveDir()
-	        );
-	        */
-	        //mCurrentPhotoPath = image.getAbsolutePath();
 	        return image;
 		}else {
 			throw new IOException("MEDIA UNMOUNTED");

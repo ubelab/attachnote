@@ -5,8 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import com.agomir.attachnote.dialogs.BrushSizeDialog;
-import com.agomir.attachnote.dialogs.ChooseColorDialog;
 import com.agomir.attachnote.helper.VoiceRecognitionHelper;
 import com.agomir.attachnote.listeners.ShakeListener;
 import com.agomir.attachnote.utils.FileUtils;
@@ -17,14 +15,19 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.speech.RecognizerIntent;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Display;
@@ -36,7 +39,7 @@ import android.widget.Toast;
 
 public class CanvasActivity extends FragmentActivity {
 
-	private static final int VOICE_RECOGNITION_REQUEST_CODE = 738392362;
+	private static final int VOICE_RECOGNITION_REQUEST_CODE = 54321;
 	
 	private String filePath;
 	private String noteImagePath;//se stiamo creando una nuova nota è nullo
@@ -45,7 +48,7 @@ public class CanvasActivity extends FragmentActivity {
 	private Sensor mAccelerometer;
 	private ShakeListener shakeListener;
 	
-	FingerPaintDrawableView fingerPaintView;
+	public FingerPaintDrawableView fingerPaintView;
 	
 	@Override
 	protected void onDestroy() {
@@ -93,9 +96,14 @@ public class CanvasActivity extends FragmentActivity {
 			String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 			String nomeFile = pathMD5+"_"+timeStamp;
 			//2) SALVO L'IMMAGINE
-			File file = FileUtils.createImageFileForSave(nomeFile);
-			boolean saved = FileUtils.saveBitmapPNG(file.getAbsolutePath(), bitmap);
-			Log.d("### salvato in",""+file.getAbsolutePath());
+			File file;
+			boolean saved;
+			if(noteImagePath == null){//nota nuova
+				file = FileUtils.createImageFileForSave(nomeFile);
+				saved = FileUtils.saveBitmapPNG(file.getAbsolutePath(), bitmap);
+			}else {//modifica di una esistente
+				saved = FileUtils.saveBitmapPNG(noteImagePath, bitmap);
+			}
 			
 			if(saved) {
 					runOnUiThread(new Runnable() {
@@ -269,6 +277,9 @@ public class CanvasActivity extends FragmentActivity {
 	        case R.id.menu_colors:
 	        	openColorDialog();
 	            return true;
+	        case R.id.menu_eraser:
+	        	fingerPaintView.setColor(Color.TRANSPARENT);
+	            return true;
 	        case R.id.menu_size:
 	        	openBrushSizeDialog();
 	            return true;
@@ -278,7 +289,8 @@ public class CanvasActivity extends FragmentActivity {
     }
     
     private void openColorDialog() {
-		new ChooseColorDialog().show(getSupportFragmentManager(), "Colors");
+    	ChooseColorDialog colorDialog = new ChooseColorDialog();
+    	colorDialog.show(getSupportFragmentManager(), "Colors");
 	}
     private void openBrushSizeDialog() {
 		new BrushSizeDialog().show(getSupportFragmentManager(), "Brush size");
@@ -323,5 +335,84 @@ public class CanvasActivity extends FragmentActivity {
 	    Log.d("captured scale factor","captured orig scale factor w="+capturedImage.getWidth()+" h="+capturedImage.getHeight());
 	    Log.d("captured scale factor","image original scale factor w="+photoW+" h="+photoH);
 	    return capturedImage;
+	}
+	
+	public static class ChooseColorDialog extends DialogFragment {
+		
+		public ChooseColorDialog() {
+			super();
+		}
+		
+	    @Override
+	    public Dialog onCreateDialog(Bundle savedInstanceState) {
+	        // Use the Builder class for convenient dialog construction
+	        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+	        builder.setTitle("Choose color")
+	               .setItems(new String[]{"Black","White","Red","Green","Blue","Yellow","Gray"}, new DialogInterface.OnClickListener() {
+			               public void onClick(DialogInterface dialog, int which) {
+			               switch (which) {
+								case 0:
+									((CanvasActivity)getActivity()).fingerPaintView.setColor(Color.BLACK);
+									break;
+								case 1:
+									((CanvasActivity)getActivity()).fingerPaintView.setColor(Color.WHITE);
+									break;
+								case 2:
+									((CanvasActivity)getActivity()).fingerPaintView.setColor(Color.RED);
+									break;
+								case 3:
+									((CanvasActivity)getActivity()).fingerPaintView.setColor(Color.GREEN);
+									break;
+								case 4:
+									((CanvasActivity)getActivity()).fingerPaintView.setColor(Color.BLUE);
+									break;
+								case 5:
+									((CanvasActivity)getActivity()).fingerPaintView.setColor(Color.YELLOW);
+									break;
+								case 6:
+									((CanvasActivity)getActivity()).fingerPaintView.setColor(Color.GRAY);
+									break;
+		
+								default:
+									break;
+								}
+			               }
+			        });
+	        // Create the AlertDialog object and return it
+	        return builder.create();
+	    }
+	}
+	
+	public static class BrushSizeDialog extends DialogFragment {
+		
+		public BrushSizeDialog() {
+			super();
+		}
+		
+	    @Override
+	    public Dialog onCreateDialog(Bundle savedInstanceState) {
+	        // Use the Builder class for convenient dialog construction
+	        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+	        builder.setTitle("Brush size")
+	               .setItems(new String[]{"Thick","Normal","Thin"}, new DialogInterface.OnClickListener() {
+			               public void onClick(DialogInterface dialog, int which) {
+			            	   switch (which) {
+									case 0:
+										((CanvasActivity)getActivity()).fingerPaintView.setBrushSize(25);
+										break;
+									case 1:
+										((CanvasActivity)getActivity()).fingerPaintView.setBrushSize(10);
+										break;
+									case 2:
+										((CanvasActivity)getActivity()).fingerPaintView.setBrushSize(5);
+										break;
+									default:
+										break;
+									}
+			               }
+			        });
+	        // Create the AlertDialog object and return it
+	        return builder.create();
+	    }
 	}
 }
